@@ -2,76 +2,91 @@ load("@rules_python//python:py_binary.bzl", "py_binary")
 load("@rules_python//python:py_library.bzl", "py_library")
 load("@rules_python//python:py_test.bzl", "py_test")
 
+package(default_visibility = ["//visibility:private"])
+
 licenses(["notice"])
 
 py_library(
-    name = "app",
-    srcs = [
-        "app.py",
-    ],
+    name = "logging",
+    srcs = ["__init__.py"],
     visibility = ["//visibility:public"],
     deps = [
-        ":command_name",
+        ":converter",
         "//absl/flags",
-        "//absl/logging",
     ],
 )
 
 py_library(
-    name = "command_name",
-    srcs = ["command_name.py"],
+    name = "converter",
+    srcs = ["converter.py"],
     visibility = ["//visibility:public"],
 )
 
-py_library(
-    name = "tests/app_test_helper",
-    testonly = 1,
-    srcs = ["tests/app_test_helper.py"],
+py_test(
+    name = "tests/converter_test",
+    size = "small",
+    srcs = ["tests/converter_test.py"],
     deps = [
-        ":app",
+        ":converter",
+        ":logging",
+        "//absl/testing:absltest",
+    ],
+)
+
+py_test(
+    name = "tests/logging_test",
+    size = "small",
+    srcs = ["tests/logging_test.py"],
+    deps = [
+        ":logging",
         "//absl/flags",
+        "//absl/testing:absltest",
+        "//absl/testing:flagsaver",
+        "//absl/testing:parameterized",
+    ],
+)
+
+py_test(
+    name = "tests/log_before_import_test",
+    srcs = ["tests/log_before_import_test.py"],
+    main = "tests/log_before_import_test.py",
+    deps = [
+        ":logging",
+        "//absl/testing:absltest",
+    ],
+)
+
+py_test(
+    name = "tests/verbosity_flag_test",
+    srcs = ["tests/verbosity_flag_test.py"],
+    deps = [
+        ":logging",
+        "//absl/flags",
+        "//absl/testing:absltest",
     ],
 )
 
 py_binary(
-    name = "tests/app_test_helper_pure_python",
+    name = "tests/logging_functional_test_helper",
     testonly = 1,
-    srcs = ["tests/app_test_helper.py"],
-    main = "tests/app_test_helper.py",
+    srcs = ["tests/logging_functional_test_helper.py"],
     deps = [
-        ":app",
+        ":logging",
+        "//absl:app",
         "//absl/flags",
     ],
 )
 
 py_test(
-    name = "tests/app_test",
-    srcs = ["tests/app_test.py"],
-    data = [":tests/app_test_helper_pure_python"],
+    name = "tests/logging_functional_test",
+    size = "large",
+    srcs = ["tests/logging_functional_test.py"],
+    data = [":tests/logging_functional_test_helper"],
+    shard_count = 50,
     deps = [
-        ":app",
-        ":tests/app_test_helper",
-        "//absl/flags",
+        ":logging",
         "//absl/testing:_bazelize_command",
         "//absl/testing:absltest",
-        "//absl/testing:flagsaver",
-    ],
-)
-
-py_test(
-    name = "tests/command_name_test",
-    srcs = ["tests/command_name_test.py"],
-    deps = [
-        ":command_name",
-        "//absl/testing:absltest",
-    ],
-)
-
-py_test(
-    name = "tests/python_version_test",
-    srcs = ["tests/python_version_test.py"],
-    deps = [
-        "//absl/flags",
-        "//absl/testing:absltest",
+        "//absl/testing:parameterized",
     ],
 )
