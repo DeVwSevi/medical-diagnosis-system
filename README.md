@@ -20,5 +20,5 @@ How to Run
 4. Open in browser: `http://127.0.0.1:5000/`
 
 
-## Author
-**Esther Wangari Njuguna** | Junior Software Developer | Dubai Job Seeker
+Author
+Esther Wangari Njuguna
